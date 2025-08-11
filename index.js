@@ -95,6 +95,24 @@ app.get('/read/:id', async (req, res) => {
   }
 });
 
+app.delete('/delete/:public_id', async (req, res) => {
+  try {
+    const publicId = req.params.public_id;
+    const result = await cloudinary.uploader.destroy(publicId, { resource_type: 'auto' });
+
+    if (result.result === 'not found') {
+      return res.status(404).json({ error: 'File not found' });
+    }
+    if (result.result !== 'ok') {
+      return res.status(500).json({ error: 'Failed to delete file' });
+    }
+
+    res.json({ message: 'File deleted successfully', result });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
 });
