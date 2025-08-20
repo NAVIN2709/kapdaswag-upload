@@ -12,10 +12,9 @@ const upload = multer({ dest: 'uploads/' });
 // ✅ Enable CORS for your frontend
 app.use(cors({
   origin: [
-    "http://localhost:4028",        // local dev
-    "https://kapdaswagapp.vercel.app/",
-    "https://kapdaswag.in/",
-    "www.kapdaswag.in" // production frontend
+    "http://localhost:4028",// local dev
+    "https://kapdaswag.in",
+    "https://www.kapdaswag.in" // production frontend
   ],
   methods: ["GET", "POST","DELETE"],
   allowedHeaders: ["Content-Type"]
