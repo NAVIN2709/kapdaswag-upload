@@ -113,16 +113,30 @@ app.get('/read/:id', async (req, res) => {
 
 app.delete('/delete/:public_id', async (req, res) => {
   try {
-    const publicId = decodeURIComponent(req.params.public_id); // Ensure proper decoding
+    const publicId = decodeURIComponent(req.params.public_id); // decode the public_id
 
     if (!publicId) {
       return res.status(400).json({ error: 'Public ID is required' });
     }
 
-    const result = await cloudinary.uploader.destroy(publicId, { resource_type: 'auto' });
+    // Guess resource type by file extension
+    let resourceType = 'image'; // default
+    if (publicId.match(/\.(mp4|mov|avi|mkv|webm)$/i)) {
+      resourceType = 'video';
+    } else if (publicId.match(/\.(pdf|docx?|pptx?|xlsx?|txt|zip)$/i)) {
+      resourceType = 'raw';
+    }
+
+    // Try deleting with detected resource type
+    let result = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+
+    // If not found under that type, retry with "image" as fallback
+    if (result.result === 'not found' && resourceType !== 'image') {
+      result = await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
+    }
 
     if (result.result === 'not found') {
-      return res.status(404).json({ error: 'File not found' });
+      return res.status(404).json({ error: 'File not found in Cloudinary' });
     }
 
     if (result.result !== 'ok') {
@@ -135,7 +149,6 @@ app.delete('/delete/:public_id', async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 });
-
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on port ${process.env.PORT}`);
