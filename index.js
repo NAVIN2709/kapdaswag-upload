@@ -14,7 +14,8 @@ app.use(cors({
   origin: [
     "http://localhost:4028",        // local dev
     "https://kapdaswagapp.vercel.app/",
-    "https://kapdaswag.in/" // production frontend
+    "https://kapdaswag.in/",
+    "www.kapdaswag.in" // production frontend
   ],
   methods: ["GET", "POST","DELETE"],
   allowedHeaders: ["Content-Type"]
