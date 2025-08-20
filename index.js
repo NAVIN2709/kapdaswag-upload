@@ -13,7 +13,8 @@ const upload = multer({ dest: 'uploads/' });
 app.use(cors({
   origin: [
     "http://localhost:4028",        // local dev
-    "https://kapdaswagapp.vercel.app/" // production frontend
+    "https://kapdaswagapp.vercel.app/",
+    "https://kapdaswag.in/" // production frontend
   ],
   methods: ["GET", "POST","DELETE"],
   allowedHeaders: ["Content-Type"]
@@ -85,6 +86,21 @@ app.post('/upload-community', upload.single('file'), async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.post('/upload-profilepic', upload.single('file'), async (req, res) => {
+  try {
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      resource_type: 'auto',
+      folder: 'profilepics'
+    });
+    // Delete temp file after upload
+    fs.unlinkSync(req.file.path);
+
+    res.json({ public_id: result.public_id, url: result.secure_url });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+})
 
 app.get('/read/:id', async (req, res) => {
   try {
